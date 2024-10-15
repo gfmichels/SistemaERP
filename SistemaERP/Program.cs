@@ -1,108 +1,82 @@
 ﻿using System;
 
-public class Program
+class Program
 {
-    static ClienteRepositorio clienteRepositorio = new ClienteRepositorio();
-    static ProdutoRepositorio produtoRepositorio = new ProdutoRepositorio();
-    static PedidoRepositorio pedidoRepositorio = new PedidoRepositorio();
+    private static ClienteRepositorio clienteRepositorio = new ClienteRepositorio();
+    private static ProdutoRepositorio produtoRepositorio = new ProdutoRepositorio();
+    private static PedidoRepositorio pedidoRepositorio = new PedidoRepositorio();
 
-    public static void Main(string[] args)
+    static void Main(string[] args)
     {
         CarregarDados();
 
         while (true)
         {
-            Console.WriteLine("Menu:");
+            Console.WriteLine("Escolha uma opção:");
             Console.WriteLine("1. Cadastrar Cliente");
-            Console.WriteLine("2. Listar Clientes");
-            Console.WriteLine("3. Cadastrar Produto");
-            Console.WriteLine("4. Listar Produtos");
-            Console.WriteLine("5. Criar Pedido");
-            Console.WriteLine("6. Sair");
-            Console.Write("Escolha uma opção: ");
+            Console.WriteLine("2. Cadastrar Produto");
+            Console.WriteLine("3. Criar Pedido");
+            Console.WriteLine("4. Listar Pedidos");
+            Console.WriteLine("5. Sair");
 
             var opcao = Console.ReadLine();
+
             switch (opcao)
             {
                 case "1":
-                    CadastrarCliente(clienteRepositorio);
+                    CadastrarCliente();
                     break;
                 case "2":
-                    ListarClientes(clienteRepositorio);
+                    CadastrarProduto();
                     break;
                 case "3":
-                    CadastrarProduto(produtoRepositorio);
-                    break;
-                case "4":
-                    ListarProdutos(produtoRepositorio);
-                    break;
-                case "5":
                     CriarPedido();
                     break;
-                case "6":
-                    SalvarDados();
+                case "4":
+                    ListarPedidos();
+                    break;
+                case "5":
+                    pedidoRepositorio.SalvarDados();
                     return;
                 default:
-                    Console.WriteLine("Opção inválida. Tente novamente.");
+                    Console.WriteLine("Opção inválida.");
                     break;
             }
         }
     }
 
-    static void CadastrarCliente(ClienteRepositorio repositorio)
+    static void CadastrarCliente()
     {
-        var cliente = new Cliente();
-        Console.Write("Nome: ");
-        cliente.Nome = Console.ReadLine();
+        Console.Write("Nome do Cliente: ");
+        var nome = Console.ReadLine();
         Console.Write("CPF/CNPJ: ");
-        cliente.CPF_CNPJ = Console.ReadLine();
-        Console.Write("Endereço: ");
-        cliente.Endereco = Console.ReadLine();
-        Console.Write("Telefone: ");
-        cliente.Telefone = Console.ReadLine();
-        Console.Write("E-mail: ");
-        cliente.Email = Console.ReadLine();
-        repositorio.Adicionar(cliente);
-        Console.WriteLine("Cliente cadastrado com sucesso.");
+        var cpfCnpj = Console.ReadLine();
+
+        var cliente = new Cliente { Nome = nome, CpfCnpj = cpfCnpj };
+        clienteRepositorio.Adicionar(cliente);
+        Console.WriteLine("Cliente cadastrado.");
     }
 
-    static void ListarClientes(ClienteRepositorio repositorio)
+    static void CadastrarProduto()
     {
-        Console.WriteLine("Clientes cadastrados:");
-        foreach (var cliente in repositorio.Listar())
-        {
-            Console.WriteLine($"Nome: {cliente.Nome}, CPF/CNPJ: {cliente.CPF_CNPJ}");
-        }
-    }
+        Console.Write("Nome do Produto: ");
+        var nome = Console.ReadLine();
+        Console.Write("Código do Produto: ");
+        var codigo = Console.ReadLine();
+        Console.Write("Preço do Produto: ");
+        var preco = decimal.Parse(Console.ReadLine());
+        Console.Write("Estoque do Produto: ");
+        var estoque = int.Parse(Console.ReadLine());
 
-    static void CadastrarProduto(ProdutoRepositorio repositorio)
-    {
-        var produto = new Produto();
-        Console.Write("Nome: ");
-        produto.Nome = Console.ReadLine();
-        Console.Write("Código: ");
-        produto.Codigo = Console.ReadLine();
-        Console.Write("Preço: ");
-        produto.Preco = decimal.Parse(Console.ReadLine());
-        Console.Write("Quantidade em Estoque: ");
-        produto.QuantidadeEstoque = int.Parse(Console.ReadLine());
-        repositorio.Adicionar(produto);
-        Console.WriteLine("Produto cadastrado com sucesso.");
-    }
-
-    static void ListarProdutos(ProdutoRepositorio repositorio)
-    {
-        Console.WriteLine("Produtos cadastrados:");
-        foreach (var produto in repositorio.Listar())
-        {
-            Console.WriteLine($"Nome: {produto.Nome}, Código: {produto.Codigo}, Preço: {produto.Preco}, Estoque: {produto.QuantidadeEstoque}");
-        }
+        var produto = new Produto { Nome = nome, Codigo = codigo, Preco = preco, Estoque = estoque };
+        produtoRepositorio.Adicionar(produto);
+        Console.WriteLine("Produto cadastrado.");
     }
 
     static void CriarPedido()
     {
         Console.WriteLine("Criando pedido...");
-        ListarClientes(clienteRepositorio);
+        ListarClientes();
         Console.Write("Escolha o nome do cliente: ");
         var nomeCliente = Console.ReadLine();
         var cliente = clienteRepositorio.BuscarPorNome(nomeCliente);
@@ -119,7 +93,7 @@ public class Program
 
         while (true)
         {
-            ListarProdutos(produtoRepositorio);
+            ListarProdutos();
             Console.Write("Escolha o código do produto (ou 'sair' para finalizar): ");
             var codigoProduto = Console.ReadLine();
             if (codigoProduto.ToLower() == "sair") break;
@@ -141,18 +115,44 @@ public class Program
         Console.WriteLine($"Pedido criado para {cliente.Nome}. Valor Total: R$ {pedido.ValorTotal}");
     }
 
+    static void ListarClientes()
+    {
+        Console.WriteLine("Clientes cadastrados:");
+        var clientes = clienteRepositorio.Listar();
+        foreach (var cliente in clientes)
+        {
+            Console.WriteLine($"Nome: {cliente.Nome}, CPF/CNPJ: {cliente.CpfCnpj}");
+        }
+    }
+
+    static void ListarProdutos()
+    {
+        Console.WriteLine("Produtos cadastrados:");
+        var produtos = produtoRepositorio.Listar();
+        foreach (var produto in produtos)
+        {
+            Console.WriteLine($"Nome: {produto.Nome}, Código: {produto.Codigo}, Preço: {produto.Preco}, Estoque: {produto.Estoque}");
+        }
+    }
+
+    static void ListarPedidos()
+    {
+        Console.WriteLine("Pedidos realizados:");
+        var pedidos = pedidoRepositorio.Listar();
+        foreach (var pedido in pedidos)
+        {
+            Console.WriteLine($"Pedido para {pedido.Cliente.Nome} em {pedido.DataPedido} - Total: R$ {pedido.ValorTotal}");
+            foreach (var item in pedido.Produtos)
+            {
+                Console.WriteLine($"- {item.Quantidade}x {item.Produto.Nome}");
+            }
+        }
+    }
+
     static void CarregarDados()
     {
         clienteRepositorio.CarregarDados();
         produtoRepositorio.CarregarDados();
         pedidoRepositorio.CarregarDados();
-    }
-
-    static void SalvarDados()
-    {
-        clienteRepositorio.SalvarDados();
-        produtoRepositorio.SalvarDados();
-        pedidoRepositorio.SalvarDados();
-        Console.WriteLine("Dados salvos com sucesso.");
     }
 }
