@@ -1,107 +1,158 @@
 ﻿using System;
 
-namespace SistemaERP
+public class Program
 {
-    class Program
+    static ClienteRepositorio clienteRepositorio = new ClienteRepositorio();
+    static ProdutoRepositorio produtoRepositorio = new ProdutoRepositorio();
+    static PedidoRepositorio pedidoRepositorio = new PedidoRepositorio();
+
+    public static void Main(string[] args)
     {
-        static void Main(string[] args)
+        CarregarDados();
+
+        while (true)
         {
-            // Instanciar repositórios
-            var repositorioClientes = new ClienteRepositorio();
-            var repositorioProdutos = new ProdutoRepositorio();
-            var repositorioPedidos = new PedidoRepositorio();
+            Console.WriteLine("Menu:");
+            Console.WriteLine("1. Cadastrar Cliente");
+            Console.WriteLine("2. Listar Clientes");
+            Console.WriteLine("3. Cadastrar Produto");
+            Console.WriteLine("4. Listar Produtos");
+            Console.WriteLine("5. Criar Pedido");
+            Console.WriteLine("6. Sair");
+            Console.Write("Escolha uma opção: ");
 
-            // ====== Testando Cadastro de Clientes ======
-            Console.WriteLine("Cadastrando clientes...");
-
-            var cliente1 = new Cliente
+            var opcao = Console.ReadLine();
+            switch (opcao)
             {
-                Nome = "Gabriel",
-                CPF_CNPJ = "123.456.789-00",
-                Endereco = "Rua 1, Cidade",
-                Telefone = "(11) 1234-5678",
-                Email = "gabriel@email.com"
-            };
-
-            var cliente2 = new Cliente
-            {
-                Nome = "Maria",
-                CPF_CNPJ = "987.654.321-00",
-                Endereco = "Avenida 2, Cidade",
-                Telefone = "(11) 8765-4321",
-                Email = "maria@email.com"
-            };
-
-            repositorioClientes.Adicionar(cliente1);
-            repositorioClientes.Adicionar(cliente2);
-
-            // Listar Clientes
-            Console.WriteLine("Clientes cadastrados:");
-            foreach (var cliente in repositorioClientes.Listar())
-            {
-                Console.WriteLine($"Nome: {cliente.Nome}, CPF/CNPJ: {cliente.CPF_CNPJ}");
-            }
-
-            // ====== Testando Cadastro de Produtos ======
-            Console.WriteLine("\nCadastrando produtos...");
-
-            var produto1 = new Produto
-            {
-                Nome = "Mouse Gamer",
-                Codigo = "001",
-                Preco = 150.00M,
-                QuantidadeEstoque = 50
-            };
-
-            var produto2 = new Produto
-            {
-                Nome = "Teclado Mecânico",
-                Codigo = "002",
-                Preco = 300.00M,
-                QuantidadeEstoque = 30
-            };
-
-            repositorioProdutos.Adicionar(produto1);
-            repositorioProdutos.Adicionar(produto2);
-
-            // Listar Produtos
-            Console.WriteLine("Produtos cadastrados:");
-            foreach (var produto in repositorioProdutos.Listar())
-            {
-                Console.WriteLine($"Nome: {produto.Nome}, Código: {produto.Codigo}, Preço: {produto.Preco}, Estoque: {produto.QuantidadeEstoque}");
-            }
-
-            // ====== Testando Criação de Pedido ======
-            Console.WriteLine("\nCriando um pedido...");
-
-            var pedido = new Pedido
-            {
-                Cliente = cliente1
-            };
-
-            pedido.Produtos.Add((produto1, 2)); // Comprando 2 unidades de "Mouse Gamer"
-            pedido.Produtos.Add((produto2, 1)); // Comprando 1 unidade de "Teclado Mecânico"
-
-            repositorioPedidos.Adicionar(pedido);
-
-            // Visualizar Pedido
-            Console.WriteLine($"Pedido criado para {pedido.Cliente.Nome}");
-            foreach (var item in pedido.Produtos)
-            {
-                Console.WriteLine($"{item.Quantidade}x {item.Produto.Nome} - Total: {item.Produto.Preco * item.Quantidade:C}");
-            }
-            Console.WriteLine($"Valor Total do Pedido: {pedido.CalcularTotal():C}");
-
-            // ====== Testando Remoção de Produto ======
-            Console.WriteLine("\nRemovendo produto do estoque...");
-            repositorioProdutos.Remover(produto1);
-
-            // Listar Produtos Após Remoção
-            Console.WriteLine("Produtos após remoção:");
-            foreach (var produto in repositorioProdutos.Listar())
-            {
-                Console.WriteLine($"Nome: {produto.Nome}, Código: {produto.Codigo}, Preço: {produto.Preco}, Estoque: {produto.QuantidadeEstoque}");
+                case "1":
+                    CadastrarCliente(clienteRepositorio);
+                    break;
+                case "2":
+                    ListarClientes(clienteRepositorio);
+                    break;
+                case "3":
+                    CadastrarProduto(produtoRepositorio);
+                    break;
+                case "4":
+                    ListarProdutos(produtoRepositorio);
+                    break;
+                case "5":
+                    CriarPedido();
+                    break;
+                case "6":
+                    SalvarDados();
+                    return;
+                default:
+                    Console.WriteLine("Opção inválida. Tente novamente.");
+                    break;
             }
         }
+    }
+
+    static void CadastrarCliente(ClienteRepositorio repositorio)
+    {
+        var cliente = new Cliente();
+        Console.Write("Nome: ");
+        cliente.Nome = Console.ReadLine();
+        Console.Write("CPF/CNPJ: ");
+        cliente.CPF_CNPJ = Console.ReadLine();
+        Console.Write("Endereço: ");
+        cliente.Endereco = Console.ReadLine();
+        Console.Write("Telefone: ");
+        cliente.Telefone = Console.ReadLine();
+        Console.Write("E-mail: ");
+        cliente.Email = Console.ReadLine();
+        repositorio.Adicionar(cliente);
+        Console.WriteLine("Cliente cadastrado com sucesso.");
+    }
+
+    static void ListarClientes(ClienteRepositorio repositorio)
+    {
+        Console.WriteLine("Clientes cadastrados:");
+        foreach (var cliente in repositorio.Listar())
+        {
+            Console.WriteLine($"Nome: {cliente.Nome}, CPF/CNPJ: {cliente.CPF_CNPJ}");
+        }
+    }
+
+    static void CadastrarProduto(ProdutoRepositorio repositorio)
+    {
+        var produto = new Produto();
+        Console.Write("Nome: ");
+        produto.Nome = Console.ReadLine();
+        Console.Write("Código: ");
+        produto.Codigo = Console.ReadLine();
+        Console.Write("Preço: ");
+        produto.Preco = decimal.Parse(Console.ReadLine());
+        Console.Write("Quantidade em Estoque: ");
+        produto.QuantidadeEstoque = int.Parse(Console.ReadLine());
+        repositorio.Adicionar(produto);
+        Console.WriteLine("Produto cadastrado com sucesso.");
+    }
+
+    static void ListarProdutos(ProdutoRepositorio repositorio)
+    {
+        Console.WriteLine("Produtos cadastrados:");
+        foreach (var produto in repositorio.Listar())
+        {
+            Console.WriteLine($"Nome: {produto.Nome}, Código: {produto.Codigo}, Preço: {produto.Preco}, Estoque: {produto.QuantidadeEstoque}");
+        }
+    }
+
+    static void CriarPedido()
+    {
+        Console.WriteLine("Criando pedido...");
+        ListarClientes(clienteRepositorio);
+        Console.Write("Escolha o nome do cliente: ");
+        var nomeCliente = Console.ReadLine();
+        var cliente = clienteRepositorio.BuscarPorNome(nomeCliente);
+
+        if (cliente == null)
+        {
+            Console.WriteLine("Cliente não encontrado.");
+            return;
+        }
+
+        var pedido = new Pedido();
+        pedido.Cliente = cliente;
+        pedido.DataPedido = DateTime.Now;
+
+        while (true)
+        {
+            ListarProdutos(produtoRepositorio);
+            Console.Write("Escolha o código do produto (ou 'sair' para finalizar): ");
+            var codigoProduto = Console.ReadLine();
+            if (codigoProduto.ToLower() == "sair") break;
+
+            var produto = produtoRepositorio.BuscarPorCodigo(codigoProduto);
+            if (produto == null)
+            {
+                Console.WriteLine("Produto não encontrado.");
+                continue;
+            }
+
+            Console.Write("Quantidade: ");
+            var quantidade = int.Parse(Console.ReadLine());
+            pedido.AdicionarProduto(produto, quantidade);
+        }
+
+        pedido.CalcularTotal();
+        pedidoRepositorio.Adicionar(pedido);
+        Console.WriteLine($"Pedido criado para {cliente.Nome}. Valor Total: R$ {pedido.ValorTotal}");
+    }
+
+    static void CarregarDados()
+    {
+        clienteRepositorio.CarregarDados();
+        produtoRepositorio.CarregarDados();
+        pedidoRepositorio.CarregarDados();
+    }
+
+    static void SalvarDados()
+    {
+        clienteRepositorio.SalvarDados();
+        produtoRepositorio.SalvarDados();
+        pedidoRepositorio.SalvarDados();
+        Console.WriteLine("Dados salvos com sucesso.");
     }
 }

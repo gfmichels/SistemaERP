@@ -1,16 +1,27 @@
-﻿public class Pedido
+﻿using System;
+using System.Collections.Generic;
+
+public class Pedido
 {
     public Cliente Cliente { get; set; }
-    public DateTime DataPedido { get; set; } = DateTime.Now;
-    public List<(Produto Produto, int Quantidade)> Produtos { get; set; } = new List<(Produto, int)>();
+    public DateTime DataPedido { get; set; }
+    public Dictionary<Produto, int> Produtos { get; set; } = new Dictionary<Produto, int>();
+    public decimal ValorTotal { get; private set; }
 
-    public decimal CalcularTotal()
+    public void AdicionarProduto(Produto produto, int quantidade)
     {
-        decimal total = 0;
+        if (Produtos.ContainsKey(produto))
+            Produtos[produto] += quantidade;
+        else
+            Produtos[produto] = quantidade;
+    }
+
+    public void CalcularTotal()
+    {
+        ValorTotal = 0;
         foreach (var item in Produtos)
         {
-            total += item.Produto.Preco * item.Quantidade;
+            ValorTotal += item.Key.Preco * item.Value;
         }
-        return total;
     }
 }
