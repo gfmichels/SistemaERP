@@ -1,48 +1,29 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+using System.Linq;
 
-public class ClienteRepositorio : IRepositorio<Cliente>
+namespace SistemaERP
 {
-    private List<Cliente> clientes = new List<Cliente>();
-
-    public void Adicionar(Cliente cliente)
+    public class ClienteRepositorio
     {
-        clientes.Add(cliente);
-    }
+        private List<Cliente> clientes = new List<Cliente>();
 
-    public void Remover(Cliente cliente)
-    {
-        clientes.Remove(cliente);
-    }
-
-    public List<Cliente> Listar()
-    {
-        return clientes;
-    }
-
-    public Cliente BuscarPorNome(string nome)
-    {
-        return clientes.Find(c => c.Nome.Equals(nome, StringComparison.OrdinalIgnoreCase));
-    }
-
-    public Cliente BuscarPorCodigo(string codigo)
-    {
-        return null; // Cliente não possui código único
-    }
-
-    public void SalvarDados()
-    {
-        var json = JsonSerializer.Serialize(clientes);
-        File.WriteAllText("clientes.json", json);
-    }
-
-    public void CarregarDados()
-    {
-        if (File.Exists("clientes.json"))
+        public void AdicionarCliente(Cliente cliente)
         {
-            var json = File.ReadAllText("clientes.json");
-            clientes = JsonSerializer.Deserialize<List<Cliente>>(json);
+            clientes.Add(cliente);
+        }
+
+        public List<Cliente> ListarClientes()
+        {
+            return clientes;
+        }
+
+        public void ExcluirCliente(string cpfCnpj)
+        {
+            var cliente = clientes.FirstOrDefault(c => c.CpfCnpj == cpfCnpj);
+            if (cliente != null)
+            {
+                clientes.Remove(cliente);
+            }
         }
     }
 }

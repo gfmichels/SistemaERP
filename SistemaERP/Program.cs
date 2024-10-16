@@ -1,158 +1,239 @@
 ﻿using System;
+using System.Collections.Generic;
 
-class Program
+namespace SistemaERP
 {
-    private static ClienteRepositorio clienteRepositorio = new ClienteRepositorio();
-    private static ProdutoRepositorio produtoRepositorio = new ProdutoRepositorio();
-    private static PedidoRepositorio pedidoRepositorio = new PedidoRepositorio();
-
-    static void Main(string[] args)
+    class Program
     {
-        CarregarDados();
+        static ClienteRepositorio clienteRepo = new ClienteRepositorio();
+        static ProdutoRepositorio produtoRepo = new ProdutoRepositorio();
+        static PedidoRepositorio pedidoRepo = new PedidoRepositorio();
 
-        while (true)
+        static void Main(string[] args)
         {
-            Console.WriteLine("Escolha uma opção:");
-            Console.WriteLine("1. Cadastrar Cliente");
-            Console.WriteLine("2. Cadastrar Produto");
-            Console.WriteLine("3. Criar Pedido");
-            Console.WriteLine("4. Listar Pedidos");
-            Console.WriteLine("5. Sair");
+            while (true)
+            {
+                Console.Clear();
+                Console.WriteLine("=== Sistema ERP ===");
+                Console.WriteLine("1 - Gerenciar Clientes");
+                Console.WriteLine("2 - Gerenciar Produtos");
+                Console.WriteLine("3 - Gerenciar Pedidos");
+                Console.WriteLine("4 - Sair");
+                Console.Write("Escolha uma opção: ");
+                string opcao = Console.ReadLine();
 
-            var opcao = Console.ReadLine();
+                switch (opcao)
+                {
+                    case "1":
+                        GerenciarClientes();
+                        break;
+                    case "2":
+                        GerenciarProdutos();
+                        break;
+                    case "3":
+                        GerenciarPedidos();
+                        break;
+                    case "4":
+                        return;
+                    default:
+                        Console.WriteLine("Opção inválida!");
+                        break;
+                }
+            }
+        }
+
+        static void GerenciarClientes()
+        {
+            Console.Clear();
+            Console.WriteLine("=== Gerenciamento de Clientes ===");
+            Console.WriteLine("1 - Criar Cliente");
+            Console.WriteLine("2 - Listar Clientes");
+            Console.WriteLine("3 - Excluir Cliente");
+            Console.WriteLine("4 - Voltar");
+            Console.Write("Escolha uma opção: ");
+            string opcao = Console.ReadLine();
 
             switch (opcao)
             {
                 case "1":
-                    CadastrarCliente();
+                    CriarCliente();
                     break;
                 case "2":
-                    CadastrarProduto();
+                    ListarClientes();
                     break;
                 case "3":
-                    CriarPedido();
+                    ExcluirCliente();
                     break;
                 case "4":
-                    ListarPedidos();
-                    break;
-                case "5":
-                    pedidoRepositorio.SalvarDados();
                     return;
                 default:
-                    Console.WriteLine("Opção inválida.");
+                    Console.WriteLine("Opção inválida!");
                     break;
             }
         }
-    }
 
-    static void CadastrarCliente()
-    {
-        Console.Write("Nome do Cliente: ");
-        var nome = Console.ReadLine();
-        Console.Write("CPF/CNPJ: ");
-        var cpfCnpj = Console.ReadLine();
-
-        var cliente = new Cliente { Nome = nome, CpfCnpj = cpfCnpj };
-        clienteRepositorio.Adicionar(cliente);
-        Console.WriteLine("Cliente cadastrado.");
-    }
-
-    static void CadastrarProduto()
-    {
-        Console.Write("Nome do Produto: ");
-        var nome = Console.ReadLine();
-        Console.Write("Código do Produto: ");
-        var codigo = Console.ReadLine();
-        Console.Write("Preço do Produto: ");
-        var preco = decimal.Parse(Console.ReadLine());
-        Console.Write("Estoque do Produto: ");
-        var estoque = int.Parse(Console.ReadLine());
-
-        var produto = new Produto { Nome = nome, Codigo = codigo, Preco = preco, Estoque = estoque };
-        produtoRepositorio.Adicionar(produto);
-        Console.WriteLine("Produto cadastrado.");
-    }
-
-    static void CriarPedido()
-    {
-        Console.WriteLine("Criando pedido...");
-        ListarClientes();
-        Console.Write("Escolha o nome do cliente: ");
-        var nomeCliente = Console.ReadLine();
-        var cliente = clienteRepositorio.BuscarPorNome(nomeCliente);
-
-        if (cliente == null)
+        static void CriarCliente()
         {
-            Console.WriteLine("Cliente não encontrado.");
-            return;
+            Console.Write("Digite o nome do cliente: ");
+            string nome = Console.ReadLine();
+            Console.Write("Digite o CPF/CNPJ do cliente: ");
+            string cpfCnpj = Console.ReadLine();
+
+            Cliente novoCliente = new Cliente { Nome = nome, CpfCnpj = cpfCnpj };
+            clienteRepo.AdicionarCliente(novoCliente);
+
+            Console.WriteLine("Cliente criado com sucesso!");
+            Console.ReadKey();
         }
 
-        var pedido = new Pedido();
-        pedido.Cliente = cliente;
-        pedido.DataPedido = DateTime.Now;
-
-        while (true)
+        static void ListarClientes()
         {
-            ListarProdutos();
-            Console.Write("Escolha o código do produto (ou 'sair' para finalizar): ");
-            var codigoProduto = Console.ReadLine();
-            if (codigoProduto.ToLower() == "sair") break;
-
-            var produto = produtoRepositorio.BuscarPorCodigo(codigoProduto);
-            if (produto == null)
+            List<Cliente> clientes = clienteRepo.ListarClientes();
+            foreach (var cliente in clientes)
             {
-                Console.WriteLine("Produto não encontrado.");
-                continue;
+                Console.WriteLine($"Cliente: {cliente.Nome}, CPF/CNPJ: {cliente.CpfCnpj}");
             }
-
-            Console.Write("Quantidade: ");
-            var quantidade = int.Parse(Console.ReadLine());
-            pedido.AdicionarProduto(produto, quantidade);
+            Console.ReadKey();
         }
 
-        pedido.CalcularTotal();
-        pedidoRepositorio.Adicionar(pedido);
-        Console.WriteLine($"Pedido criado para {cliente.Nome}. Valor Total: R$ {pedido.ValorTotal}");
-    }
-
-    static void ListarClientes()
-    {
-        Console.WriteLine("Clientes cadastrados:");
-        var clientes = clienteRepositorio.Listar();
-        foreach (var cliente in clientes)
+        static void ExcluirCliente()
         {
-            Console.WriteLine($"Nome: {cliente.Nome}, CPF/CNPJ: {cliente.CpfCnpj}");
+            Console.Write("Digite o CPF/CNPJ do cliente a ser excluído: ");
+            string cpfCnpj = Console.ReadLine();
+
+            clienteRepo.ExcluirCliente(cpfCnpj);
+            Console.WriteLine("Cliente excluído com sucesso!");
+            Console.ReadKey();
         }
-    }
 
-    static void ListarProdutos()
-    {
-        Console.WriteLine("Produtos cadastrados:");
-        var produtos = produtoRepositorio.Listar();
-        foreach (var produto in produtos)
+        static void GerenciarProdutos()
         {
-            Console.WriteLine($"Nome: {produto.Nome}, Código: {produto.Codigo}, Preço: {produto.Preco}, Estoque: {produto.Estoque}");
-        }
-    }
+            Console.Clear();
+            Console.WriteLine("=== Gerenciamento de Produtos ===");
+            Console.WriteLine("1 - Criar Produto");
+            Console.WriteLine("2 - Listar Produtos");
+            Console.WriteLine("3 - Excluir Produto");
+            Console.WriteLine("4 - Voltar");
+            Console.Write("Escolha uma opção: ");
+            string opcao = Console.ReadLine();
 
-    static void ListarPedidos()
-    {
-        Console.WriteLine("Pedidos realizados:");
-        var pedidos = pedidoRepositorio.Listar();
-        foreach (var pedido in pedidos)
-        {
-            Console.WriteLine($"Pedido para {pedido.Cliente.Nome} em {pedido.DataPedido} - Total: R$ {pedido.ValorTotal}");
-            foreach (var item in pedido.Produtos)
+            switch (opcao)
             {
-                Console.WriteLine($"- {item.Quantidade}x {item.Produto.Nome}");
+                case "1":
+                    CriarProduto();
+                    break;
+                case "2":
+                    ListarProdutos();
+                    break;
+                case "3":
+                    ExcluirProduto();
+                    break;
+                case "4":
+                    return;
+                default:
+                    Console.WriteLine("Opção inválida!");
+                    break;
             }
         }
-    }
 
-    static void CarregarDados()
-    {
-        clienteRepositorio.CarregarDados();
-        produtoRepositorio.CarregarDados();
-        pedidoRepositorio.CarregarDados();
+        static void CriarProduto()
+        {
+            Console.Write("Digite o nome do produto: ");
+            string nome = Console.ReadLine();
+            Console.Write("Digite o código do produto: ");
+            string codigo = Console.ReadLine();
+            Console.Write("Digite a quantidade em estoque: ");
+            int estoque = int.Parse(Console.ReadLine());
+
+            Produto novoProduto = new Produto { Nome = nome, Codigo = codigo, Estoque = estoque };
+            produtoRepo.AdicionarProduto(novoProduto);
+
+            Console.WriteLine("Produto criado com sucesso!");
+            Console.ReadKey();
+        }
+
+        static void ListarProdutos()
+        {
+            List<Produto> produtos = produtoRepo.ListarProdutos();
+            foreach (var produto in produtos)
+            {
+                Console.WriteLine($"Produto: {produto.Nome}, Código: {produto.Codigo}, Estoque: {produto.Estoque}");
+            }
+            Console.ReadKey();
+        }
+
+        static void ExcluirProduto()
+        {
+            Console.Write("Digite o código do produto a ser excluído: ");
+            string codigo = Console.ReadLine();
+
+            produtoRepo.ExcluirProduto(codigo);
+            Console.WriteLine("Produto excluído com sucesso!");
+            Console.ReadKey();
+        }
+
+        static void GerenciarPedidos()
+        {
+            Console.Clear();
+            Console.WriteLine("=== Gerenciamento de Pedidos ===");
+            Console.WriteLine("1 - Criar Pedido");
+            Console.WriteLine("2 - Listar Pedidos");
+            Console.WriteLine("3 - Excluir Pedido");
+            Console.WriteLine("4 - Voltar");
+            Console.Write("Escolha uma opção: ");
+            string opcao = Console.ReadLine();
+
+            switch (opcao)
+            {
+                case "1":
+                    CriarPedido();
+                    break;
+                case "2":
+                    ListarPedidos();
+                    break;
+                case "3":
+                    ExcluirPedido();
+                    break;
+                case "4":
+                    return;
+                default:
+                    Console.WriteLine("Opção inválida!");
+                    break;
+            }
+        }
+
+        static void CriarPedido()
+        {
+            Console.Write("Digite o código do pedido: ");
+            string codigoPedido = Console.ReadLine();
+            Console.Write("Digite o produto do pedido: ");
+            string produto = Console.ReadLine();
+
+            Pedido novoPedido = new Pedido { CodigoPedido = codigoPedido, Produto = produto };
+            pedidoRepo.AdicionarPedido(novoPedido);
+
+            Console.WriteLine("Pedido criado com sucesso!");
+            Console.ReadKey();
+        }
+
+        static void ListarPedidos()
+        {
+            List<Pedido> pedidos = pedidoRepo.ListarPedidos();
+            foreach (var pedido in pedidos)
+            {
+                Console.WriteLine($"Pedido: {pedido.CodigoPedido}, Produto: {pedido.Produto}");
+            }
+            Console.ReadKey();
+        }
+
+        static void ExcluirPedido()
+        {
+            Console.Write("Digite o código do pedido a ser excluído: ");
+            string codigoPedido = Console.ReadLine();
+
+            pedidoRepo.ExcluirPedido(codigoPedido);
+            Console.WriteLine("Pedido excluído com sucesso!");
+            Console.ReadKey();
+        }
     }
 }

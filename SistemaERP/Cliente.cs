@@ -1,5 +1,8 @@
-﻿public class Cliente
+﻿namespace SistemaERP
 {
-    public string Nome { get; set; }
-    public string CpfCnpj { get; set; } // Propriedade adicionada
+    public class Cliente
+    {
+        public string Nome { get; set; }
+        public string CpfCnpj { get; set; }
+    }
 }

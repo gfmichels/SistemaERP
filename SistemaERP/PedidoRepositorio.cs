@@ -1,49 +1,29 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+using System.Linq;
 
-public class PedidoRepositorio : IRepositorio<Pedido>
+namespace SistemaERP
 {
-    private List<Pedido> pedidos = new List<Pedido>();
-
-    public void Adicionar(Pedido pedido)
+    public class PedidoRepositorio
     {
-        pedidos.Add(pedido);
-    }
+        private List<Pedido> pedidos = new List<Pedido>();
 
-    public void Remover(Pedido pedido)
-    {
-        pedidos.Remove(pedido);
-    }
-
-    public List<Pedido> Listar()
-    {
-        return pedidos;
-    }
-
-    public Pedido BuscarPorNome(string nome)
-    {
-        return null; // Implementar busca por nome se necessário
-    }
-
-    public Pedido BuscarPorCodigo(string codigo)
-    {
-        // Implementar busca por código se necessário
-        return null;
-    }
-
-    public void SalvarDados()
-    {
-        var json = JsonSerializer.Serialize(pedidos);
-        File.WriteAllText("pedidos.json", json);
-    }
-
-    public void CarregarDados()
-    {
-        if (File.Exists("pedidos.json"))
+        public void AdicionarPedido(Pedido pedido)
         {
-            var json = File.ReadAllText("pedidos.json");
-            pedidos = JsonSerializer.Deserialize<List<Pedido>>(json);
+            pedidos.Add(pedido);
+        }
+
+        public List<Pedido> ListarPedidos()
+        {
+            return pedidos;
+        }
+
+        public void ExcluirPedido(string codigoPedido)
+        {
+            var pedido = pedidos.FirstOrDefault(p => p.CodigoPedido == codigoPedido);
+            if (pedido != null)
+            {
+                pedidos.Remove(pedido);
+            }
         }
     }
 }

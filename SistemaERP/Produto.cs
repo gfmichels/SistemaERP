@@ -1,7 +1,9 @@
-﻿public class Produto
+﻿namespace SistemaERP
 {
-    public string Nome { get; set; }
-    public string Codigo { get; set; }
-    public decimal Preco { get; set; }
-    public int Estoque { get; set; } // Adicionei essa linha
+    public class Produto
+    {
+        public string Nome { get; set; }
+        public string Codigo { get; set; }
+        public int Estoque { get; set; }
+    }
 }

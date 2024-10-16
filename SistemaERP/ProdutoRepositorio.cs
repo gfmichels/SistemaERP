@@ -1,48 +1,29 @@
 ﻿using System.Collections.Generic;
-using System.IO;
-using System.Text.Json;
+using System.Linq;
 
-public class ProdutoRepositorio : IRepositorio<Produto>
+namespace SistemaERP
 {
-    private List<Produto> produtos = new List<Produto>();
-
-    public void Adicionar(Produto produto)
+    public class ProdutoRepositorio
     {
-        produtos.Add(produto);
-    }
+        private List<Produto> produtos = new List<Produto>();
 
-    public void Remover(Produto produto)
-    {
-        produtos.Remove(produto);
-    }
-
-    public List<Produto> Listar()
-    {
-        return produtos;
-    }
-
-    public Produto BuscarPorNome(string nome)
-    {
-        return produtos.Find(p => p.Nome.Equals(nome, StringComparison.OrdinalIgnoreCase));
-    }
-
-    public Produto BuscarPorCodigo(string codigo)
-    {
-        return produtos.Find(p => p.Codigo.Equals(codigo, StringComparison.OrdinalIgnoreCase));
-    }
-
-    public void SalvarDados()
-    {
-        var json = JsonSerializer.Serialize(produtos);
-        File.WriteAllText("produtos.json", json);
-    }
-
-    public void CarregarDados()
-    {
-        if (File.Exists("produtos.json"))
+        public void AdicionarProduto(Produto produto)
         {
-            var json = File.ReadAllText("produtos.json");
-            produtos = JsonSerializer.Deserialize<List<Produto>>(json);
+            produtos.Add(produto);
+        }
+
+        public List<Produto> ListarProdutos()
+        {
+            return produtos;
+        }
+
+        public void ExcluirProduto(string codigo)
+        {
+            var produto = produtos.FirstOrDefault(p => p.Codigo == codigo);
+            if (produto != null)
+            {
+                produtos.Remove(produto);
+            }
         }
     }
 }
